@@ -1,5 +1,13 @@
 plugins { id 'com.android.application' }
 
+// Restored from GitHub secrets by the workflow. When these are absent the
+// build falls back to the throwaway per-run debug key (which means every
+// update has to be uninstalled first, so keep the secrets set).
+def ksFile  = System.getenv('KS_FILE')
+def ksPass  = System.getenv('KS_PASS')
+def ksAlias = System.getenv('KS_ALIAS')
+def keyPass = System.getenv('KEY_PASS')
+
 android {
     namespace 'com.zyvo.torchunlock'
     compileSdk 34
@@ -10,6 +18,31 @@ android {
         targetSdk 34
         versionCode 1
         versionName '1.0'
+    }
+
+    signingConfigs {
+        stable {
+            if (ksFile && new File(ksFile).exists()) {
+                storeFile file(ksFile)
+                storePassword ksPass
+                keyAlias ksAlias
+                keyPassword keyPass
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            if (ksFile && new File(ksFile).exists()) {
+                signingConfig signingConfigs.stable
+            }
+        }
+        release {
+            minifyEnabled false
+            if (ksFile && new File(ksFile).exists()) {
+                signingConfig signingConfigs.stable
+            }
+        }
     }
 
     compileOptions {
