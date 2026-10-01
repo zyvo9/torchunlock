@@ -28,7 +28,6 @@
     <string name="change_3">Availability forced on</string>
     <string name="change_3_sub">The quick-settings tile no longer shows itself as unavailable when the camera driver reports “in use”.</string>
 
-    <string name="label_test">HOW TO TEST</string>
     <string name="label_setup">SETUP — WHAT TO TICK IN LSPOSED</string>
 
     <string name="step_1">1.  Open LSPosed → tap Modules</string>
