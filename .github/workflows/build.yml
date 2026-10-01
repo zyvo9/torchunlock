@@ -14,30 +14,9 @@ jobs:
       - uses: actions/setup-java@v4
         with: { distribution: temurin, java-version: '17' }
       - uses: gradle/actions/setup-gradle@v3
-
-      - name: Restore signing key
-        env:
-          KS_B64: ${{ secrets.ANDROID_KEYSTORE }}
-          P_PASS: ${{ secrets.KS_PASS }}
-          P_ALIAS: ${{ secrets.KS_ALIAS }}
-          P_KEY: ${{ secrets.KEY_PASS }}
-        run: |
-          if [ -n "$KS_B64" ]; then
-            printf '%s' "$KS_B64" | base64 -d > "$RUNNER_TEMP/torchunlock.jks"
-            echo "KS_FILE=$RUNNER_TEMP/torchunlock.jks" >> "$GITHUB_ENV"
-            echo "KS_PASS=$P_PASS" >> "$GITHUB_ENV"
-            echo "KS_ALIAS=$P_ALIAS" >> "$GITHUB_ENV"
-            echo "KEY_PASS=$P_KEY" >> "$GITHUB_ENV"
-            echo "signing key restored"
-          else
-            echo "no signing key secret - using a throwaway debug key"
-          fi
-
       - run: gradle assembleDebug --no-daemon
-
       - uses: actions/upload-artifact@v4
         with: { name: app-debug, path: app/build/outputs/apk/debug/app-debug.apk }
-
       - name: Attach to release
         uses: softprops/action-gh-release@v2
         with:
