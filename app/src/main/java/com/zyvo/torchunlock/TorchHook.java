@@ -11,10 +11,9 @@ import java.util.Locale;
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XC_MethodReplacement;
-import de.robv.android.xposed.XC_LoadPackage;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
-import de.robv.android.xposed.AndroidAppHelper;
+import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 /**
  * TorchUnlock — kills the low-battery torch block.
@@ -223,15 +222,26 @@ public class TorchHook implements IXposedHookLoadPackage {
     private static void report() {
         log("armed: " + ARMED, null);
         try {
-            android.content.Context ctx = AndroidAppHelper.currentApplication();
+            android.content.Context ctx = currentApp();
             if (ctx == null) return;
             Intent i = new Intent(STATUS_ACTION);
             i.setPackage("com.zyvo.torchunlock");
             i.putExtra("armed", true);
-            i.putExtra("layers", ARMED);
+            i.putExtra("layers", new ArrayList<String>(ARMED));
             i.putExtra("fakeLevel", FAKE_LEVEL);
             ctx.sendBroadcast(i);
         } catch (Throwable ignored) {
+        }
+    }
+
+    /** ActivityThread.currentApplication() without the Xposed helper. */
+    private static android.content.Context currentApp() {
+        try {
+            Class<?> at = Class.forName("android.app.ActivityThread");
+            Object app = at.getDeclaredMethod("currentApplication").invoke(null);
+            return app instanceof android.content.Context ? (android.content.Context) app : null;
+        } catch (Throwable t) {
+            return null;
         }
     }
 
