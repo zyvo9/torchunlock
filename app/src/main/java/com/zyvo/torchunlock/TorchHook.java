@@ -66,7 +66,7 @@ public class TorchHook implements IXposedHookLoadPackage {
             layerForceAvailable(cl);
             report();
         } catch (Throwable t) {
-            XposedBridge.log(TAG, "install failed: " + t);
+            log("install failed", t);
         }
     }
 
@@ -221,7 +221,7 @@ public class TorchHook implements IXposedHookLoadPackage {
     }
 
     private static void report() {
-        XposedBridge.log(TAG, "armed: " + ARMED);
+        log("armed: " + ARMED, null);
         try {
             android.content.Context ctx = AndroidAppHelper.currentApplication();
             if (ctx == null) return;
@@ -236,6 +236,8 @@ public class TorchHook implements IXposedHookLoadPackage {
     }
 
     private static void log(String msg, Throwable t) {
-        XposedBridge.log(TAG, msg + ": " + t);
+        // Logcat (visible with `logcat -s TorchUnlock`) and the LSPosed log.
+        android.util.Log.i(TAG, msg, t);
+        XposedBridge.log(TAG + ": " + msg + (t == null ? "" : " / " + t));
     }
 }
